@@ -1,5 +1,7 @@
 set -ex
 
+cd $(dirname $0)
+
 . ../../package_sync_functions.sh
 
 runc_git_version() {

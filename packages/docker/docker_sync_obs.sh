@@ -1,5 +1,7 @@
 set -e
 
+cd $(dirname $0)
+
 . ../../package_sync_functions.sh
 
 docker_git_version() {

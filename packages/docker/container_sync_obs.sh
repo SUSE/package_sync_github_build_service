@@ -1,5 +1,7 @@
 set -ex
 
+cd $(dirname $0)
+
 . ../../package_sync_functions.sh
 
 containerd_git_version() {
