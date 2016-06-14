@@ -5,11 +5,10 @@ cd $(dirname $0)
 . ../../package_sync_functions.sh
 
 docker_git_version() {
-	cat VERSION | grep -q ".0-dev"
-	if [ $? == 0 ]; then
-		echo $(cat VERSION | sed "s/\.0-dev/~def/")
+	if grep -q -- '.0-dev' VERSION; then
+		echo $(cat VERSION | sed "s/\.0-dev/~dev/")
 	else
-		echo $(cat VERSION | sed "s/-dev/~def/")
+		echo $(cat VERSION | sed "s/-dev/~dev/")
 	fi
 }
 
