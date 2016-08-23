@@ -72,6 +72,21 @@ package_sync_build_service() {
   old_git_version=$(grep '%define git_version' ${PACKAGE}.spec | sed 's/%define git_version //')
   old_package_version=$(grep "%define ${PACKAGE}_version " ${PACKAGE}.spec | sed "s/%define ${PACKAGE}_version //")
   old_version=$(grep 'Version:' ${PACKAGE}.spec | sed 's/Version:\s*//')
+  if [ "$old_git_version" == "" ];then
+      echo "Sorry but I can't find the git_version definition"
+      echo "Please edit the spec file and add"
+      echo "%define git_version XXXX"
+      exit -1
+  fi
+  if [ "$old_package_version" == "" ];then
+      echo "Waning: I can't find the package_version definition"
+      echo "This is not mandatory, so I am ignoring this."
+  fi
+  if [ "$old_version" == "" ];then
+      echo "Sorry but I can't find the version definition"
+      echo "Please edit the spec file and check the Version tag"
+      exit -2
+  fi
 
   # Just to be informative.
   echo "old_git  :: ${old_git_version}"
@@ -88,12 +103,14 @@ package_sync_build_service() {
       # Replace the fields in the spec file.
       sed -E -i.bak "s/${old_git_version}/${new_git_version}/g" ${PACKAGE}.spec
       sed -E -i.bak "s/(Version:\s*).*/\1${new_version}/g" ${PACKAGE}.spec
-      sed -E -i.bak "s/(%define ${PACKAGE}_version) ${old_package_version}/\1 ${new_package_version}/g" ${PACKAGE}.spec
 
       # Fix source filename
       sed -E -i "s/(Source:\s*).*/\1%{name}-git.%{git_version}.tar.xz/g" containerd.spec
       sed -E -i.bak "s/%setup -q.*/%setup -q -n %{name}-git.%{git_version}/g" containerd.spec
 
+      if [ "$old_package_version" != "" ];then
+          sed -E -i.bak "s/(%define ${PACKAGE}_version) ${old_package_version}/\1 ${new_package_version}/g" ${PACKAGE}.spec
+      fi
       rm ${PACKAGE}.spec.bak
 
       # Sleep for a bit.
