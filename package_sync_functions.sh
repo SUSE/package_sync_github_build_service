@@ -108,10 +108,16 @@ package_sync_build_service() {
       sed -E -i.bak "s/(Source:\s*).*/\1%{name}-git.%{git_version}.tar.xz/g" ${PACKAGE}.spec
       sed -E -i.bak "s/%setup -q.*/%setup -q -n %{name}-git.%{git_version}/g" ${PACKAGE}.spec
 
-      if [ "$old_package_version" != "" ];then
+      if [ "$old_package_version" != "" ]; then
           sed -E -i.bak "s/(%define ${PACKAGE}_version) ${old_package_version}/\1 ${new_package_version}/g" ${PACKAGE}.spec
       fi
       rm ${PACKAGE}.spec.bak
+
+	  # Fix the commit inside the service file. Yes, we are editing XML with regex. Trust me, I'm a professional. :P
+	  if [ -f "_service" ]; then
+		  sed -E -i.bak "s/(\s*<param name=\"revision\">)[^<]*(<\/param>)/\1${new_package_version}\2/g" _service
+		  rm _service.bak
+	  fi
 
       # Sleep for a bit.
       sleep 1
